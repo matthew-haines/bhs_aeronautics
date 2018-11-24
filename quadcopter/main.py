@@ -1,10 +1,18 @@
 import keyboard as kb
 import pigpio
+import smbus
+import numpy as np
+import RPi.GPIO as gpio
 import os
 import time
 os.system('sudo pigpiod')
 time.sleep(1)
 
+class telemetry():
+
+    def __init__(self, bus):
+
+        
 
 class motor_controller():
 
@@ -117,8 +125,13 @@ class motor_controller():
                 return
 
     def safe_landing(self):
+        a = np.zeros((3, 1))
+        v_t1 = np.zeros((3, 1))
+        v_t2 = np.zeros((3, 1))
+        delta_t = 1
+        v_t2 = v_t1 + a * delta_t
         
-
+        speed = np.linalg.norm(v_t2)
 
     def arm(self):
         input("Connect battery")
