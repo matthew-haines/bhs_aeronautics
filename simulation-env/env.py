@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import torch
 from math import cos, sin, pi
 
@@ -45,6 +46,10 @@ class SimpleQuadcopterSimulation:
 
         self.inertia = torch.diag([5e-3, 5e-3, 10e-3])
 
+        self.reset()
+
+    def reset(self):
+
         # State parameters
         self.velocity - self.params["start_velocity"]
         self.position = self.params["start_position"]
@@ -71,6 +76,8 @@ class SimpleQuadcopterSimulation:
         omegadot = self.compute_angular_acceleration(inputs, omega, self.inertia, self.params['L'], self.params['b'], self.params['k'])
 
         omega = omega + self.params['dt'] * omegadot
+
+        # Compute new state
         self.angular_velocity = self.omega_to_theta_dot(omega, self.angular_velocity)
         self.angles = self.angles + self.params['dt'] * self.angular_velocity
         self.velocity = self.velocity + self.params['dt'] * a
