@@ -1,29 +1,17 @@
-import websockets
-import asyncio
-import json
+from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import time
 
-class websocket_server():
+class Server(WebSocket):
 
-    def __init__(self, name='localhost', port=8765, heartbeat_interval=0.100):
+    def handleMessage(self):
+        self.sendMessage("{}".format(round(time.time() * 1000)))
 
-        self.missed_heartbeats = 0
-        self.last_heartbeat = 0
+    def handleConnected(self):
+        print('connected')
 
-        self.server = websockets.serve(self.handler, name, port)
-        asyncio.get_event_loop().run_until_complete(self.server)
-        asyncio.get_event_loop().run_forever()
+    def handleClose(self):
+        print('closed')
 
-    async def handler(self, websocket, path):
-        message = await websocket.recv()
 
-        if str(message) == 'ping':
-            await websocket.send('pong')
-
-        
-
-    def json_parser(self, data):
-        parsed = json.laods(data)
-        # Do some stuff
-
-        
+server = SimpleWebSocketServer('', 8765, Server)
+server.serveforever()
