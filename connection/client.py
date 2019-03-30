@@ -4,7 +4,7 @@ import time
 
 async def query():
     async with websockets.connect(
-        'ws://localhost:8765') as websocket:
+        'ws://flightcontroller:8765') as websocket:
         data = input()
         cur_time = int(round(time.time() * 1000))
         await websocket.send(data)
