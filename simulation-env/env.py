@@ -164,3 +164,9 @@ class SimpleQuadcopterSimulation:
             cos(theta) * cos(psi),
         ]
         return r_matrix
+
+def main():
+    sim = SimpleQuadcopterSimulation()
+
+if __name__ == "__main__":
+    main()
