@@ -28,13 +28,12 @@ class Server:
         # General
         self.timeout_time = timeout_time
 
-        # Start Websockets Server
-        self.last_command = None
-        # asyncio.run(self.__serve(port, host))
-        threading.Thread(target=self.__serve)
-        print('here')
         # Actual controller (change)
         self.controller = None
+
+        # Start Websockets Server
+        self.last_command = None
+        asyncio.run(self.__serve(port, host))
 
     def __timeout_check(self):
         while (1):
