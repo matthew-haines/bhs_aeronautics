@@ -79,7 +79,7 @@ class Motor:
         Returns: None
         """
         print("w/s to increase decrease speed, q/e to big increase/descrease")
-        while (True):
+        while True:
             inp = input()
             if inp == "w":
                 self.throttle(self.current_value+10)
@@ -120,6 +120,8 @@ class Quadcopter:
         self.motor_list = [self.front_left,
                            self.front_right, self.back_left, self.back_right]
 
+        self.throttle = 0
+         
     def _set_all(self, speed):
         """
         Sets the speed of all motors assigned to the quadcopter. \n
@@ -161,3 +163,25 @@ class Quadcopter:
         time.sleep(1)
         self._set_all(self.motor_min)
         time.sleep(1)
+
+    def control_all(self):
+        """
+        Simple manual control for basic testing. \n
+        Arguments: nothing \n
+        Returns: nothing
+        """
+        print("w/s to increase decrease speed, q/e to big increase/descrease")
+        while True:
+            inp = input()
+            if inp == "w":
+                self._set_all(self.throttle+10)
+            elif inp == "s":
+                self._set_all(self.throttle-10)
+            elif inp == "q":
+                self._set_all(self.throttle+100)
+            elif inp == "e":
+                self._set_all(self.throttle-100)
+            elif inp == "stop":
+                self._set_all(0)
+            else:
+                self._set_all(int(inp))
