@@ -8,12 +8,6 @@ import time
 os.system('sudo pigpiod')
 time.sleep(1)
 
-class telemetry():
-
-    def __init__(self, bus):
-
-        
-
 class motor_controller():
 
     def __init__(self, pi, pin_fl, pin_fr, pin_bl, pin_br, max_value=2800, min_value=800):

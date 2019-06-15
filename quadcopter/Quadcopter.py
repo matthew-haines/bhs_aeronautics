@@ -9,7 +9,7 @@ time.sleep(1)
 class Motor:
     """Simple wrapper for an ESC motor"""
 
-    def __init__(self, pin: int, pi: pigpio.pi, motor_max=700, motor_min=2000):
+    def __init__(self, pin: int, pi: pigpio.pi, motor_max=2000, motor_min=1000):
         """
         Sets up motor. \n
         Arguments: \n
@@ -45,17 +45,15 @@ class Motor:
         Arguments: nothing \n
         Returns: nothing
         """
-        self.throttle(0)
         print("disconnect battery and press Enter")
         input()
         self.throttle(self.motor_max)
-        print("Connect the battery now. After it finishes beeping press Enter")
+        print("connect battery and press enter")
         input()
-        self.throttle(self.motor_min)
-        time.sleep(12)
-        self.throttle(0)
         time.sleep(2)
         self.throttle(self.motor_min)
+        time.sleep(8)
+        print("calibrated")
 
     def arm(self):
         """
@@ -63,13 +61,11 @@ class Motor:
         Arguments: nothing \n
         Returns: nothing
         """
+        print("disconnect the battery and press enter")
+        input()
+        self.throttle(self.motor_min)
         print("Connect the battery and press Enter")
         input()
-        self.throttle(0)
-        time.sleep(1)
-        self.throttle(self.motor_max)
-        time.sleep(1)
-        self.throttle(self.motor_min)
         time.sleep(1)
 
     def manual_control(self):
@@ -114,7 +110,7 @@ class Quadcopter:
         self.back_left = Motor(self.motor_ports['back_left'], self.pi)
         self.back_right = Motor(self.motor_ports['back_right'], self.pi)
 
-        self.motor_min = 700
+        self.motor_min = 1000
         self.motor_max = 2000
 
         self.motor_list = [self.front_left,
@@ -132,6 +128,8 @@ class Quadcopter:
         for motor in self.motor_list:
             motor.throttle(speed)
 
+        self.throttle = speed
+
     def calibrate_all(self):
         """
         Calibrates every motor. This needs to happen whenever a motor has been disconnected from \n
@@ -139,17 +137,15 @@ class Quadcopter:
         Arguments: nothing \n
         Returns: nothing
         """
-        self._set_all(0)
-        print("Disconnect battery and press Enter")
+        print("disconnect battery and press Enter")
         input()
         self._set_all(self.motor_max)
-        print("Connect the battery now. After it finishes beeping press Enter")
+        print("connect battery and press enter")
         input()
-        self._set_all(self.motor_min)
-        time.sleep(12)
-        self._set_all(0)
         time.sleep(2)
         self._set_all(self.motor_min)
+        time.sleep(8)
+        print("calibrated")
 
     def arm_all(self):
         """
@@ -157,11 +153,11 @@ class Quadcopter:
         Arguments: nothing \n
         Returns: nothing
         """
-        self._set_all(0)
-        time.sleep(1)
-        self._set_all(self.motor_max)
-        time.sleep(1)
+        print("disconnect the battery and press enter")
+        input()
         self._set_all(self.motor_min)
+        print("Connect the battery and press Enter")
+        input()
         time.sleep(1)
 
     def control_all(self):
