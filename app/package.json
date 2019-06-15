@@ -1,0 +1,16 @@
+{
+  "name": "quadcopterclient",
+  "version": "0.1.0",
+  "description": "A GUI for interfacing with Quadcopter",
+  "main": "main.js",
+  "scripts": {
+    "test": "electron .",
+    "start": "electron ."
+  },
+  "author": "Matthew Haines",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^5.0.4",
+    "ws": "^7.0.0"
+  }
+}

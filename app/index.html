@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>QuadcopterClient</title>
+        <link rel="stylesheet" href="css/main.css" type="text/css">
+    </head>
+    <body>
+        <form id="connection-wrapper" name="connectionForm" onsubmit="formHandler(this); return false">
+            <h3>Connection</h3>
+            <input type="text" placeholder="IP Address" name="ip" id="connection-input" class="rounded">
+            <input type="image" src="img/enter.png" alt="submit" id="connection-button"/>
+        </form>
+
+        <div id="motor-stat">
+            <h3>Motor 1</h3>
+            <div id="motor-1" class="progress-bar rounded">
+                <div id="motor-1-percentage" class="progress-bar-percentage rounded"><span>0%</span></div>
+            </div>
+            <h3>Motor 2</h3>
+            <div id="motor-2" class="progress-bar rounded">
+                <div id="motor-2-percentage" class="progress-bar-percentage rounded"><span>0%</span></div>
+            </div>
+            <h3>Motor 3</h3>
+            <div id="motor-3" class="progress-bar rounded">
+                <div id="motor-3-percentage" class="progress-bar-percentage rounded"><span>0%</span></div>
+            </div>
+            <h3>Motor 4</h3>
+            <div id="motor-4" class="progress-bar rounded">
+                <div id="motor-4-percentage" class="progress-bar-percentage rounded"><span>0%</span></div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="js/handler.js"></script>
+    </body>
+</html>

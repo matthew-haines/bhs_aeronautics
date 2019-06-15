@@ -1,0 +1,57 @@
+@font-face {
+    font-family: 'Open Sans';
+    src: url('../fonts/OpenSans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    font-family: 'Open Sans';
+}
+
+.rounded {
+    border-radius: 5px;
+}
+
+#connection-wrapper {
+    width: 250px;
+    height: 20px;
+    margin-bottom: 75px;
+    text-align: middle;
+}
+
+#connection-input {
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    display: inline;
+    vertical-align: middle;
+}
+
+#connection-button {
+    height: 20px;
+    vertical-align: middle;
+}
+
+.progress-bar {
+    width: 100px;
+    background: #CCC;
+    position: relative;
+    margin: 10px;
+}
+
+.progress-bar-percentage {
+    background: #3063A5;
+    padding: 5px 0px;
+    color: #FFF;
+    text-align: center;
+    height: 20px;
+    width: 0%;
+}
+
+.progress-bar-percentage span {
+    display: inline-block;
+    position: absolute;
+    width: 100%;
+    left: 0;
+}
