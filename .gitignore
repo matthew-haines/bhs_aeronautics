@@ -1,2 +1,4 @@
 .vscode/
 app/node_modules/
+.swp
+.DS_Store
