@@ -63,7 +63,7 @@ function formHandler(form) {
     main();
 }
 
-function dataSender(event, tasks, client) {
+async function dataSender(keys, tasks, client) {
     var message = {
         "time": Math.round((new Date()).getTime() / 1000),
         "commands": {
@@ -79,39 +79,18 @@ function dataSender(event, tasks, client) {
         }
     };
 
-    switch (event.key) {
-        case "w":
-            message.commands.pitch = 1;
-            break;
-        case "s":
-            message.commands.pitch = -1;
-            break;
-        case "a":
-            message.commands.roll = 1;
-            break;
-        case "d":
-            message.commands.roll = -1;
-            break;
-        case "q":
-            message.commands.yaw = 1;
-            break;
-        case "e":
-            message.commands.yaw = -1;
-            break;
-    }
-
-    if (event.shiftKey) {
-        message.throttle = 1;
-    }
-    else if (event.altKey) {
-        message.throttle = -1;
-    }
+    message.pitch = determineCommand(keys["w"], keys["s"]);
+    message.yaw = determineCommand(keys["q"], keys["e"]);
+    message.roll = determineCommand(keys["a"], keys["d"]);
+    message.throttle = determineCommand(keys["shift"], keys["alt"]);
 
     message.tasks = tasks;
 
     client.on("open", function open() {
         ws.send(message);
-    })
+    });
+
+    await sleep(50);
 }
 
 document.addEventListener("keydown", function onDown(event) {
@@ -122,7 +101,7 @@ document.addEventListener("keyup", function onUp(event) {
     keys[event.key.toLowerCase()] = false;
 }); 
 
-setTimeout(async function tempPrint() {
+/*setTimeout(async function tempPrint() {
     while (true) {
         for (const [key, value] of Object.entries(keys)) {
             if (value == true && key != "dead") {
@@ -131,4 +110,6 @@ setTimeout(async function tempPrint() {
         }
         await sleep(100);
     }
-}, 0);
+}, 0);*/
+
+setTimeout(dataSender, 0);
