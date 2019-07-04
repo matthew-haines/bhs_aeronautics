@@ -45,22 +45,10 @@ async function test() {
 test();*/
 
 function determineCommand(positive, negative) {
-    if (positive && negative) return 0;
+    if (positive == undefined && negative == undefined) return 0;
+    else if (positive && negative) return 0;
     else if (positive) return 1;
     return -1;
-}
-
-function formHandler(form) {
-    var ip = form.ip.value;
-
-    if (ip.length == 0) {
-        alert("No IP specified");
-        return false;
-    }
-
-    client = connect(ip);
-    document.getElementById("connection-input").setAttribute("style", "border-color: green;");
-    main();
 }
 
 async function dataSender(keys, tasks, client) {
@@ -111,5 +99,16 @@ document.addEventListener("keyup", function onUp(event) {
         await sleep(100);
     }
 }, 0);*/
+function formHandler(form) {
+    var ip = form.ip.value;
 
-setTimeout(dataSender, 0);
+    if (ip.length == 0) {
+        alert("No IP specified");
+        return false;
+    }
+
+    client = connect(ip);
+    document.getElementById("connection-input").setAttribute("style", "border-color: green;");
+    setTimeout(dataSender, 0);
+}
+
