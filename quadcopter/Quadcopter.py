@@ -71,8 +71,8 @@ class Motor:
     def manual_control(self):
         """
         Simple manual control loop for basic testing. \n
-        Arguments: None \n
-        Returns: None
+        Arguments: nothing \n
+        Returns: nothing
         """
         print("w/s to increase decrease speed, q/e to big increase/descrease")
         while True:
@@ -105,10 +105,10 @@ class Quadcopter:
         self.motor_ports = motor_ports
 
         # Motor setup:
-        self.front_left = Motor(self.motor_ports['front_left'], self.pi)
-        self.front_right = Motor(self.motor_ports['front_right'], self.pi)
-        self.back_left = Motor(self.motor_ports['back_left'], self.pi)
-        self.back_right = Motor(self.motor_ports['back_right'], self.pi)
+        self.front_left = Motor(self.motor_ports["front_left"], self.pi)
+        self.front_right = Motor(self.motor_ports["front_right"], self.pi)
+        self.back_left = Motor(self.motor_ports["back_left"], self.pi)
+        self.back_right = Motor(self.motor_ports["back_right"], self.pi)
 
         self.motor_min = 1000
         self.motor_max = 2000
@@ -118,7 +118,7 @@ class Quadcopter:
 
         self.throttle = 0
          
-    def _set_all(self, speed):
+    def _set_all(self, speed: int):
         """
         Sets the speed of all motors assigned to the quadcopter. \n
         Arguments: \n
@@ -136,7 +136,7 @@ class Quadcopter:
             a power source. \n
         Arguments: nothing \n
         Returns: nothing
-        """
+    """
         print("disconnect battery and press Enter")
         input()
         self._set_all(self.motor_max)
