@@ -124,7 +124,7 @@ class IMU:
             # self.accelerations.append(self.acceleration)
 
             if verbose and ((i % 100) == False):
-                print("Time: {}, Heading: {}".format(
+                print("Time: {}, Heading: {}`".format(
                     round(cur_time-self.start_time, 3), self.heading))
 
             self.last_time = cur_time
