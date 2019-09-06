@@ -14,35 +14,25 @@ class MotorHandler:
         self.pitch_pid = pid.PID([1, 1, 1])
         self.roll_pid = pid.PID([1, 1, 1])
         self.yaw_pid = pid.PID([1, 1, 1])
-        
-        self.target_pitch = 0
-        self.target_roll = 0
-        self.target_yaw = 0
-        self.throttle = 0
-        self.throttle_squared = 0
-
-    def _parse_pitch(self, pid_output):
-        # If positive pitch up
-        front = math.sqrt(self.throttle_squared + pid_output)
-        back = math.sqrt(self.throttle_squared - pid_output)
-        return (front, back)
-
-    def _parse_roll(self, pid_output):
-        # If positive roll counter-clockwise
-        right = math.sqrt(self.throttle_squared + pid_output)
-        left = math.sqrt(self.throttle_squared - pid_output)
-        return (right, left)
-    
-    def _parse_yaw(self, pid_output):
-        # If positive yaw right
-        # figure out which ones turns
-        return 0
+        self.current_pitch = 0.0
+        self.current_roll = 0.0
+        self.current_yaw = 0.0
+        self.target_pitch = 0.0
+        self.target_roll = 0.0
+        self.target_yaw = 0.0
+        self.throttle = 0.0
+        self.throttle_squared = 0.0
 
     def _eval_loop(self):
-        while True:
-            self.throttle_squared = self.throttle ** 2
+        # [yaw, pitch, roll]
+        pitch_value = self.pitch_pid.step(self.current_pitch, self.target_pitch)
+        roll_value = self.roll_pid.step(self.current_roll, self.target_roll)
+        yaw_value = self.yaw_pid.step(self.current_yaw, self.target_yaw)
 
+        self.front.throttle(int(math.sqrt(self.throttle_squared + pitch_value + yaw_value)))
+        self.back.throttle(int(math.sqrt(self.throttle_squared - pitch_value, + yaw_value)))
+        self.left.throttle(int(math.sqrt(self.throttle_squared + roll_value - yaw_value)))
+        self.right.throttle(int(math.sqrt(self.throttle_squared - roll_value - yaw_value)))
 
     def start(self):
-        self.computation_thread = threading.Thread(target=self._eval_loop)
-        self.computation_thread.start()
+        threading.Thread(target=self._eval_loop)

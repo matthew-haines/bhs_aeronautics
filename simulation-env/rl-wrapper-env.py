@@ -15,7 +15,7 @@ class Environment:
             "start_angle_vel": None,
             "air_density": 1.225,  # kg/m³
             "rotor_area": 10,  # cm²
-            "gravity_accel": 9.81,  # m/s² 
+            "gravity_accel": 9.81,  # m/s
             "motor_distance": 5,  # cm
             "k": 3e-6,  # constant used for torque calculation
             "kd": 0.25,  # constant for calculation of friction

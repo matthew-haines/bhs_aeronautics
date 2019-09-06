@@ -2,7 +2,7 @@ from typing import Dict
 import pigpio
 import os
 import time
-import motor
+from motor import Motor
 os.system("sudo pigpiod")
 time.sleep(1)
 
@@ -96,3 +96,6 @@ class Quadcopter:
                 self._set_all(0)
             else:
                 self._set_all(int(inp))
+
+
+    

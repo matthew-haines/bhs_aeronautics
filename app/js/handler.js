@@ -9,40 +9,29 @@ var tasks = {
 
 var keys = {};
 
+var percentage_texts = new Array();
+var progressBars;
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function connect(path) {
     const ws = new WebSocket("ws://" + path);
-    return ws;
-}
-
-
-/*var percentageValue = 0;
-
-var progressBars = document.getElementsByClassName("progress-bar-percentage");
-
-var percentages = new Array();
-for (let wrapper of progressBars) {
-    percentages.push(wrapper.getElementsByTagName("span")[0])
-}
-
-async function test() {
-
     while (true) {
-        for (let percentage of percentages) {
-            percentage.innerHTML = (percentageValue % 100).toString() + "%";
+        await sleep(1000);
+        if (ws.readyState === WebSocket.OPEN) {
+            return ws;
         }
-        for (let progressBar of progressBars) {
-            progressBar.setAttribute("style", "width: "+(percentageValue % 100).toString() + "%;");
-        }
-        percentageValue++;
-        await sleep(50);
+    }
+ }
+
+function percentageUpdate(actualValues) {
+    for (i = 0; i < 4; i += 1) {
+        percentage_texts[i].innerHTML = actualValues[i].toString() + "%";
+        progressBars[i].setAttribute("style", "width: "+(actualValues[i].toString() + "%;"))
     }
 }
-
-test();*/
 
 function determineCommand(positive, negative) {
     if (positive == undefined && negative == undefined) return 0;
@@ -112,3 +101,19 @@ function formHandler(form) {
     setTimeout(dataSender, 0);
 }
 
+client.onmessage = function(event) {
+    var data = JSON.parse(event.data);
+    motor_speeds = new Array();
+    for (let motor in data.state.motors) {
+        motor_speeds.push(motor);
+    }
+    percentageUpdate(motor_speeds);
+}
+
+function setup() {
+    progressBars = document.getElementsByClassName("progress-bar-percentage");
+
+    for (let wrapper of progressBars) {
+        percentage_texts.push(wrapper.getElementsByTagName("span")[0])
+    }
+}
