@@ -36,11 +36,11 @@ function determineCommand(positive, negative) {
 
 function dataSender(client) {
     var message = {
-        "time": Math.round((new Date()).getTime() / 1000),
+        "time": Math.round((new Date()).getTime()), // in milliseconds since epoch
         "pitch": determineCommand(keys["w"], keys["s"]),
         "yaw": determineCommand(keys['q'], keys['e']),
         "roll": determineCommand(keys['a'], keys['d']),
-        "throttle": determineCommand(keys['shift'], keys['control'])
+        "throttle": determineCommand(keys[' '], keys['shift']) // spacebar and shift
     };
     client.send(JSON.stringify(message));
     console.log("Sent");

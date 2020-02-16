@@ -2,6 +2,7 @@ import asyncio
 import websockets
 import json
 import random
+import time
 
 async def handler(websocket: websockets.server.WebSocketServer, path: str) -> None:
     motors = [0] * 4
@@ -19,6 +20,8 @@ async def handler(websocket: websockets.server.WebSocketServer, path: str) -> No
             motors[i] = max(0, min(100, motors[i]))
         
         await websocket.send(json.dumps({
+            "time": int(round(time.time() * 1000)),
+            "orientation": {},
             "state": {
                 "motors": motors
             }
@@ -29,4 +32,3 @@ start_server = websockets.serve(handler, 'localhost', 8765)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
-

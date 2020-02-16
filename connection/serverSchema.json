@@ -1,0 +1,16 @@
+{
+    "time": 0,
+    "state": {
+        "orientation": {
+            "pitch": 1,
+            "yaw": 1,
+            "roll": 1
+        },
+        "motors": [
+            1,
+            1,
+            1,
+            1
+        ]
+    }
+}
