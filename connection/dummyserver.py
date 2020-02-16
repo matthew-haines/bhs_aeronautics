@@ -4,18 +4,23 @@ import json
 import random
 
 async def handler(websocket: websockets.server.WebSocketServer, path: str) -> None:
+    motors = [0] * 4
     while True:
         result = await websocket.recv()
         result = json.loads(result)
         print(result)
+
+        motors[0] += result['pitch'] # clockwise front front
+        motors[2] -= result['pitch']
+        motors[1] += result['roll']
+        motors[3] -= result['roll']
+        for i in range(len(motors)): 
+            motors[i] += result['throttle']
+            motors[i] = max(0, min(100, motors[i]))
+        
         await websocket.send(json.dumps({
             "state": {
-                "motors": [
-                    random.randint(0, 100),
-                    random.randint(0, 100),
-                    random.randint(0, 100),
-                    random.randint(0, 100)
-                ]
+                "motors": motors
             }
         }))
 

@@ -71,7 +71,7 @@ async function loop(client) {
             return;
         }
         dataSender(client);
-        await sleep(500);
+        await sleep(50);
     }
 }
 
