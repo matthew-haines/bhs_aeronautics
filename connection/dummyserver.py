@@ -3,9 +3,11 @@ import websockets
 import json
 import random
 import time
+import math
 
 async def handler(websocket: websockets.server.WebSocketServer, path: str) -> None:
     motors = [0] * 4
+    j = 0
     while True:
         result = await websocket.recv()
         result = json.loads(result)
@@ -21,11 +23,15 @@ async def handler(websocket: websockets.server.WebSocketServer, path: str) -> No
         
         await websocket.send(json.dumps({
             "time": int(round(time.time() * 1000)),
-            "orientation": {},
-            "state": {
-                "motors": motors
-            }
+            "orientation": {
+                "roll": j/300,
+                "pitch": j/150, 
+                "yaw": j/200
+            },
+            "motors": motors
         }))
+        j += 1
+        print(i)
 
 
 start_server = websockets.serve(handler, 'localhost', 8765)

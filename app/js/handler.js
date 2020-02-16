@@ -8,10 +8,10 @@ var camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
 var renderer = new THREE.WebGLRenderer({canvas: renderWindow});
 renderer.setSize(400, 400);
 
-function makeArrow(color) {
+function makeArrow(color, width) {
     var group = new THREE.Group();
-    var boxGeometry = new THREE.BoxGeometry(1, 0.07, 0.07);
-    var coneGeometry = new THREE.ConeGeometry(0.1, 0.2, 32);
+    var boxGeometry = new THREE.BoxGeometry(1, width, width);
+    var coneGeometry = new THREE.ConeGeometry(width*1.25, 0.2, 32);
     var material = new THREE.MeshBasicMaterial({color: color});
 
     var box = new THREE.Mesh(boxGeometry, material);
@@ -24,11 +24,11 @@ function makeArrow(color) {
     return group;
 }
 
-function makeAxes(color1=0xFF2222, color2=0x22FF22, color3=0x2222FF) {
+function makeAxes(color1=0xFF2222, color2=0x22FF22, color3=0x2222FF, width=0.07) {
     var group = new THREE.Group();
-    var arrowX = makeArrow(color1);
-    var arrowY = makeArrow(color2);
-    var arrowZ = makeArrow(color3);
+    var arrowX = makeArrow(color1, width);
+    var arrowY = makeArrow(color2, width);
+    var arrowZ = makeArrow(color3, width);
     arrowY.rotation.set(0, 0, Math.PI / 2);
     arrowZ.rotation.set(0, Math.PI / 2, 0);
     group.add(arrowX);
@@ -37,16 +37,18 @@ function makeAxes(color1=0xFF2222, color2=0x22FF22, color3=0x2222FF) {
     return group;
 }
 
-var axes = makeAxes();
-scene.add(axes);
+var baseAxes = makeAxes(0x550000, 0x005500, 0x000055, 0.05);
+var rotatingAxes = makeAxes();
+scene.add(baseAxes);
+scene.add(rotatingAxes);
 camera.position.set(1.5, 1.5, -1.5);
 camera.lookAt(0, 0, 0);
 console.log("three.js setup done");
 
 function getFrame(roll=0, pitch=0, yaw=0) {
     return function() {
-        var euler = new THREE.Euler(roll, pitch, yaw, 'XYZ');
-        axes.applyEuler(euler);
+        var euler = new THREE.Euler(roll, pitch, yaw, 'ZYX');
+        rotatingAxes.setRotationFromEuler(euler);
         renderer.render(scene, camera);
     }
 }
@@ -97,7 +99,6 @@ function dataSender(client) {
 function percentageUpdate(actualValues) {
     for (i = 0; i < 4; i += 1) {
         percentageTexts[i].innerHTML = actualValues[i].toString() + "%";
-        console.log(actualValues);
         progressBars[i].setAttribute("style", "width: "+(actualValues[i].toString() + "%;"))
     }
 }
@@ -106,11 +107,12 @@ function responseHandler(event) {
     console.log("Recieved");
     var data = JSON.parse(event.data);
     motorSpeeds = new Array();
-    data.state.motors.forEach(function (item, index) {
+    data.motors.forEach(function (item, index) {
         motorSpeeds[index] = item;
     });
     percentageUpdate(motorSpeeds);
-    requestAnimationFrame(getFrame(data.orientation.roll, data.orientation.pitch, data.orientation.yaw));
+    console.log(data.orientation);
+    requestAnimationFrame(getFrame(data.orientation.roll, data.orientation.yaw, data.orientation.pitch));
 }
 
 async function loop(client) {
@@ -120,7 +122,7 @@ async function loop(client) {
             return;
         }
         dataSender(client);
-        await sleep(500);
+        await sleep(16);
     }
 }
 
