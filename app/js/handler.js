@@ -3,6 +3,54 @@ const WebSocket = require('ws');
 var keys = {};
 var percentageTexts = new Array();
 
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+var renderer = new THREE.WebGLRenderer({canvas: renderWindow});
+renderer.setSize(400, 400);
+
+function makeArrow(color) {
+    var group = new THREE.Group();
+    var boxGeometry = new THREE.BoxGeometry(1, 0.07, 0.07);
+    var coneGeometry = new THREE.ConeGeometry(0.1, 0.2, 32);
+    var material = new THREE.MeshBasicMaterial({color: color});
+
+    var box = new THREE.Mesh(boxGeometry, material);
+    var cone = new THREE.Mesh(coneGeometry, material);
+    box.position.set(0.5, 0, 0);
+    cone.position.set(1, 0, 0);
+    cone.rotation.set(0, 0, -Math.PI / 2);
+    group.add(box);
+    group.add(cone);
+    return group;
+}
+
+function makeAxes(color1=0xFF2222, color2=0x22FF22, color3=0x2222FF) {
+    var group = new THREE.Group();
+    var arrowX = makeArrow(color1);
+    var arrowY = makeArrow(color2);
+    var arrowZ = makeArrow(color3);
+    arrowY.rotation.set(0, 0, Math.PI / 2);
+    arrowZ.rotation.set(0, Math.PI / 2, 0);
+    group.add(arrowX);
+    group.add(arrowY);
+    group.add(arrowZ);
+    return group;
+}
+
+var axes = makeAxes();
+scene.add(axes);
+camera.position.set(1.5, 1.5, -1.5);
+camera.lookAt(0, 0, 0);
+console.log("three.js setup done");
+
+function getFrame(roll=0, pitch=0, yaw=0) {
+    return function() {
+        var euler = new THREE.Euler(roll, pitch, yaw, 'XYZ');
+        axes.applyEuler(euler);
+        renderer.render(scene, camera);
+    }
+}
+
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -62,6 +110,7 @@ function responseHandler(event) {
         motorSpeeds[index] = item;
     });
     percentageUpdate(motorSpeeds);
+    requestAnimationFrame(getFrame(data.orientation.roll, data.orientation.pitch, data.orientation.yaw));
 }
 
 async function loop(client) {
@@ -71,7 +120,7 @@ async function loop(client) {
             return;
         }
         dataSender(client);
-        await sleep(50);
+        await sleep(500);
     }
 }
 
@@ -101,4 +150,5 @@ async function setup() {
 
 window.onload = function() {
     setup();    
+    requestAnimationFrame(getFrame(0, 0, 0));
 }
