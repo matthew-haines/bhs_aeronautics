@@ -117,3 +117,5 @@ function setup() {
         percentage_texts.push(wrapper.getElementsByTagName("span")[0])
     }
 }
+
+setup();
