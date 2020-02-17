@@ -33,6 +33,18 @@
     vertical-align: middle;
 }
 
+#container {
+    display: flex;
+}
+
+#motor-stat {
+    width: 300px;
+}
+
+#canvas-wrap {
+    flex-grow: 1;
+}
+
 .progress-bar {
     width: 100px;
     background: #CCC;
