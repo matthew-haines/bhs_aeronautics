@@ -106,14 +106,17 @@ function percentageUpdate(actualValues) {
 
 function responseHandler(event) {
     console.log("Recieved");
-    var data = JSON.parse(event.data);
+    var response = JSON.parse(event.data);
     motorSpeeds = new Array();
-    data.motors.forEach(function (item, index) {
+    response.motors.forEach(function (item, index) {
         motorSpeeds[index] = item;
     });
     percentageUpdate(motorSpeeds);
-    console.log(data.orientation);
-    requestAnimationFrame(getFrame(data.orientation.roll, data.orientation.yaw, data.orientation.pitch));
+    console.log(response.orientation);
+    requestAnimationFrame(getFrame(response.orientation.roll, response.orientation.yaw, response.orientation.pitch));
+    if (calibration in response) {
+        console.log(response.calibration);
+    }
 }
 
 async function loop(client) {

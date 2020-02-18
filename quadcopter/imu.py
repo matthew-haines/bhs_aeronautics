@@ -7,10 +7,10 @@ import busio
 
 def quaternion_to_euler(quaternion: Tuple[float, float, float, float]) -> Tuple[float, float, float]:
     """
-    Converts quaternion (x,y,z,w) to euler angles (pitch, roll, yaw)
+    Converts quaternion (x,y,z,w) to euler angles (yaw, pitch, roll)
     Arguments:
         q (Tuple): a 4-tuple containing (w,x,y,z) in quaternion units
-    Returns: a 3-tuple containing (pitch, roll, yaw)
+    Returns: a 3-tuple containing (yaw, pitch, roll)
     """
     x, y, z, w = quaternion
 
