@@ -4,27 +4,7 @@ from typing import Tuple
 import board
 import adafruit_bno055
 import busio
-
-def quaternion_to_euler(quaternion: Tuple[float, float, float, float]) -> Tuple[float, float, float]:
-    """
-    Converts quaternion (x,y,z,w) to euler angles (yaw, pitch, roll)
-    Arguments:
-        q (Tuple): a 4-tuple containing (w,x,y,z) in quaternion units
-    Returns: a 3-tuple containing (yaw, pitch, roll)
-    """
-    x, y, z, w = quaternion
-
-    t0 = +2.0 * (w * x + y * z)
-    t1 = +1.0 - 2.0 * (x * x + y * y)
-    roll = math.atan2(t0, t1)
-    t2 = +2.0 * (w * y - z * x)
-    t2 = +1.0 if t2 > +1.0 else t2
-    t2 = -1.0 if t2 < -1.0 else t2
-    pitch = math.asin(t2)
-    t3 = +2.0 * (w * z + x * y)
-    t4 = +1.0 - 2.0 * (y * y + z * z)
-    yaw = math.atan2(t3, t4)
-    return [yaw, pitch, roll]
+from scipy.spatial.transform import Rotation
 
 class IMU:
 
@@ -52,4 +32,4 @@ class IMU:
         Queries sensor and returns euler angles (yaw, pitch, roll)
         """
         quaternion = self.sensor.quaternion # (x, y, z, w)
-        return quaternion_to_euler(quaternion)
+        return Rotation.from_quat(quaternion).as_euler('ZYX') # implicit transformation
