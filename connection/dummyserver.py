@@ -1,9 +1,7 @@
 import asyncio
-import websockets
 import json
-import random
 import time
-import math
+import websockets
 
 async def handler(websocket: websockets.server.WebSocketServer, path: str) -> None:
     motors = [0] * 4
@@ -11,7 +9,6 @@ async def handler(websocket: websockets.server.WebSocketServer, path: str) -> No
     while True:
         result = await websocket.recv()
         result = json.loads(result)
-        print(result)
 
         motors[0] += result['pitch'] # clockwise front front
         motors[2] -= result['pitch']
@@ -31,7 +28,6 @@ async def handler(websocket: websockets.server.WebSocketServer, path: str) -> No
             "motors": motors
         }))
         j += 1
-        print(i)
 
 
 start_server = websockets.serve(handler, 'localhost', 8765)

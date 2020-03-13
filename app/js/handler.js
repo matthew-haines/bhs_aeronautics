@@ -114,7 +114,7 @@ function responseHandler(event) {
     percentageUpdate(motorSpeeds);
     console.log(response.orientation);
     requestAnimationFrame(getFrame(response.orientation.roll, response.orientation.yaw, response.orientation.pitch));
-    if (calibration in response) {
+    if ('calibration' in response) {
         console.log(response.calibration);
     }
 }
