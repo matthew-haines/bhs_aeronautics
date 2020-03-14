@@ -1,10 +1,11 @@
 {
     "time": 0,
-    "orientation": {
-        "roll": 1,
-        "pitch": 1,
-        "yaw": 1
-    },
+    "orientation": [
+        1,
+        1,
+        1,
+        1
+    ],
     "motors": [
         1,
         1,

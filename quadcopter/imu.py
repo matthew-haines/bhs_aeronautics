@@ -4,7 +4,6 @@ from typing import Tuple
 import board
 import adafruit_bno055
 import busio
-from scipy.spatial.transform import Rotation
 
 class IMU:
 
@@ -31,5 +30,4 @@ class IMU:
         """
         Queries sensor and returns euler angles (yaw, pitch, roll)
         """
-        quaternion = self.sensor.quaternion # (x, y, z, w)
-        return Rotation.from_quat(quaternion).as_euler('ZYX') # implicit transformation
+        return self.sensor.quaternion # (x, y, z, w)

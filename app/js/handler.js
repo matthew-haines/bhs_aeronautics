@@ -46,10 +46,10 @@ camera.position.set(1.5, 1.5, -1.5);
 camera.lookAt(0, 0, 0);
 console.log("three.js setup done");
 
-function getFrame(roll = 0, pitch = 0, yaw = 0) {
+function getFrame(quaternion) {
     return function () {
-        var euler = new THREE.Euler(roll, pitch, yaw, 'ZYX'); // implicit euler angles
-        rotatingAxes.setRotationFromEuler(euler);
+        var quat = new THREE.Quaternion(...quaternion);
+        rotatingAxes.setRotationFromQuaternion(quat);
         renderer.render(scene, camera);
     }
 }
@@ -113,7 +113,7 @@ function responseHandler(event) {
     });
     percentageUpdate(motorSpeeds);
     console.log(response.orientation);
-    requestAnimationFrame(getFrame(response.orientation.roll, response.orientation.yaw, response.orientation.pitch));
+    requestAnimationFrame(getFrame(response.orientation));
     if ('calibration' in response) {
         console.log(response.calibration);
     }
