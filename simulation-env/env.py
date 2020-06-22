@@ -1,172 +1,73 @@
-# -*- coding: utf-8 -*-
-import torch
-from math import cos, sin, pi
+import numpy as np
 
-if torch.cuda.is_available():  # If GPU is available create tensors on GPU
-    torch.set_default_tensor_type("torch.cuda.FloatTensor")
+class Simulation:
 
-def uniform_vector(m, n, min_value, max_value):
-    return (min_value - max_value) * torch.rand(m, n) + max_value
+    def __init__(self):
+        # All units in SI
+        # Constants
+        self.mass = 0.5
+        self.motor_distance = 0.4
+        self.motor_constant = 3e-6
+        self.yaw_constant = 1e-7
+        self.drag_constant = 0.25
+        self.gravity = 9.80665
+        self.inertia = np.diag([5e-3, 5e-3, 10e-3])  # moment of inertia
+        self.inertia_inv = np.linalg.inv(self.inertia)
+        self.gravity_force = np.array([0.0, 0.0, -self.mass * self.gravity])
+        self.dt = 1e-3
 
+        # State
+        self.position = np.zeros(3)
+        self.velocity = np.zeros(3)
+        self.rotation = np.zeros(3)
+        self.angular_velocity = np.zeros(3)
 
-class SimpleQuadcopterSimulation:
-    """
-    Environment that simulates quadcopter flight given input of a motor rpm vector  (ℝ⁴)
-    """
+    def _rotational_matrix(self):
+        # body frame to inertial frame
+        s = np.sin
+        c = np.cos
+        r = self.rotation[0]
+        p = self.rotation[1]
+        y = self.rotation[2]
+        return np.array([[c(r)*c(y)-c(p)*s(r)*s(y), -c(y)*s(r)-c(r)*c(p)*c(y), s(p)*s(y)],
+                         [c(p)*c(y)*s(r)+c(r)*s(y), c(r)*c(p)*c(y)-s(r)*s(y), -c(y)*s(p)],
+                         [s(r)*s(p), c(r)*s(p), c(p)]])
 
-    def __init__(self, **kwargs):
+    def _angular_velocity_matrix(self):
+        # Rotation axis = this * angular velocities (euler angles)
+        s = np.sin
+        c = np.cos
+        r = self.rotation[0]
+        p = self.rotation[1]
+        return np.array([[1, 0, -s(p)],
+                         [0, c(r), c(p)*s(r)],
+                         [0, -s(r), c(p)*c(r)]])
 
-        self.params = {  # Default parameters
-            "time": 10,  # seconds, simulation time
-            "dt": 0.005,  # Δt between steps
-            "mass": 1.5,  # kg
-            "start_velocity": None,  # random
-            "start_position": None,  # random
-            "start_angle": None,  # random
-            "start_angle_vel": None,  # random
-            # "tpc": 1, # torque proportionality constant, specific to motor
-            # "zero_current": 1, # current to each motor when load = 0
-            # "back_emf": 1, # back emf generated per rpm (when motors run, they also generate emf, this reduces current flowing)
-            "air_density": 1.225,  # kg/m³, at SATP
-            "rotor_area": 10,  # cm²
-            "gravity_accel": 9.80,  # m/s² at earth's surface
-            "motor_distance": 5,  # cm from center of quadcopter to motor
-            "k": 3e-6,  # constant used for torque calculations
-            "kd": 0.25,  # constant for calculation of friction
-            "L": 0.25, # distance from motors to center of quadcopter
-            "b": 3e-6 # drag coefficient
-        }
-        for (param, val) in (self.params.iteritems()):  # replaces defaults parameters with user defined if exist
-            setattr(self, param, kwargs.get(param, val))
+    def _calculate_torques(self, propeller_speeds):
+        # returns torque vector in body frame (roll, pitch, yaw)
+        roll_torque = self.motor_distance * self.motor_constant * \
+            (propeller_speeds[0] ** 2 - propeller_speeds[2] ** 2)
+        pitch_torque = self.motor_distance * self.motor_constant * \
+            (propeller_speeds[1] ** 2 - propeller_speeds[3] ** 2)
+        yaw_torque = self.yaw_constant * \
+            np.dot(np.array([1.0, -1.0, 1.0, -1.0]) *
+                   propeller_speeds, propeller_speeds)
+        return np.array([roll_torque, pitch_torque, yaw_torque])
 
-        # Parameters needed for computations
-        self.gravity = torch.t(
-            torch.Tensor([0, 0, -self.params["gravity_accel"]])
-        )  # Tranpose to column vector
+    def step(self, propeller_speeds):
+        rotational_matrix = self._rotational_matrix()
+        thrust = np.array([0, 0, self.motor_constant * np.dot(propeller_speeds, propeller_speeds)])
+        drag_force = -self.drag_constant * self.velocity
+        linear_acceleration = (
+            self.gravity_force + rotational_matrix @ thrust + drag_force) / self.mass
+        self.velocity += self.dt * linear_acceleration
+        self.position += self.dt * self.velocity
 
-        self.inertia = torch.diag([5e-3, 5e-3, 10e-3])
-
-        self.reset()
-
-    def reset(self):
-
-        # State parameters
-        self.velocity - self.params["start_velocity"]
-        self.position = self.params["start_position"]
-        self.angles = self.params["start_angle"]
-        self.angular_velocity = self.params["start_angle_vel"]
-
-        if self.params["start_velocity"] == None:
-            self.velocity = uniform_vector(3, 1, -10, 10)
-        if self.params["start_position"] == None:
-            self.acceleration = torch.t(torch.Tensor([0, 0, 10]))
-        if self.params["start_angle"] == None:
-            self.angles = uniform_vector(3, 1, -2 * pi, 2 * pi)
-        if self.params["start_angle_vel"] == None:
-            self.angular_velocity = uniform_vector(
-                3, 1, -2 * pi, 2 * pi
-            )  # Rads/s², 1 rotation per s max
-
-    def step(self, inputs):
-        """
-        Steps forward in the simulation, takes the s
-        """
-        omega = self.theta_dot_to_omega(self.angular_velocity, self.angles)
-        a = self.compute_acceleration(inputs, self.angles, self.velocity, self.params['mass'], self.gravity, self.params['k'], self.params['kd'])
-        omegadot = self.compute_angular_acceleration(inputs, omega, self.inertia, self.params['L'], self.params['b'], self.params['k'])
-
-        omega = omega + self.params['dt'] * omegadot
-
-        # Compute new state
-        self.angular_velocity = self.omega_to_theta_dot(omega, self.angular_velocity)
-        self.angles = self.angles + self.params['dt'] * self.angular_velocity
-        self.velocity = self.velocity + self.params['dt'] * a
-        self.position = self.position + self.params['dt'] * self.angular_velocity
-
-        return (self.angles, self.angular_velocity, self.position, self.velocity)
-
-    def theta_dot_to_omega(self, thetadot, angles):
-        """
-        Angles: A 3 size vector of the euler angles
-        thetadot: A 3 size vector of the derivatives of roll, pitch, yaw with respect to time
-        
-        Returns: A angular velocity vector
-        """
-        phi = angles[0]
-        theta = angles[1]
-        psi = angles[2]
-
-        matrix = torch.Tensor(
-            [1, 0, -sin(theta)],
-            [0, cos(phi), cos(theta) * sin(phi)],
-            [0, -sin(phi), cos(theta) * cos(phi)],
-        )
-        return torch.dot(matrix, thetadot)
-
-    def rotation(self, angles):
-        """
-        Function that creates a 3x3 rotation matrix from angle vectors of ℝ³ 
-        """
-        phi = angles[0]
-        theta = angles[1]
-        psi = angles[2]
-        r_matrix = torch.zeros(3, 3)
-        r_matrix[:, 0] = [cos(phi) * cos(theta), cos(theta) * sin(phi), -sin(theta)]
-        r_matrix[:, 1] = [
-            cos(phi) * sin(theta) * sin(psi) - cos(psi) * sin(phi),
-            cos(phi) * cos(psi) + sin(phi) * sin(theta) * sin(psi),
-            cos(theta) * sin(psi)
-        ]
-        r_matrix[:, 2] = [
-            sin(phi) * sin(psi) + cos(phi) * cos(psi) * sin(theta),
-            cos(psi) * sin(phi) * sin(theta) - cos(phi) * sin(psi),
-            cos(theta) * cos(psi)
-        ]
-        return r_matrix 
-
-    def thrust(self, inputs, k):
-        return torch.t(torch.Tensor([0, 0, k * torch.sum(inputs)]))
-
-    def compute_acceleration(self, inputs, angles, velocity, mass, gravity, k, kd):
-        R = self.rotation(angles)
-        T = torch.dot(R, self.thrust(inputs, k))
-        Fd = -kd * velocity
-        return gravity + 1 / mass * T + Fd
-
-    def torques(self, inputs, L, b, k):
-        return torch.t(torch.Tensor([L * k * (inputs[0] - inputs[2]), L * k * (inputs[1] - inputs[3]), 
-                                    b * (inputs[0] - inputs[1] + inputs[2] - inputs[3])]))
-                                    
-    def compute_angular_acceleration(self, inputs, omega, I, L, b, k):
-        tau = self.torques(inputs, L, b, k)
-        return torch.inverse(I) * (tau - torch.cross(omega, I * omega))
-
-    def compute_thrust(self, angular_velocity):
-        return torch.t(torch.Tensor(0, 0, torch.t(angular_velocity).dot(angular_velocity)))
-
-    def create_rotation_matrix(self, angles):
-        """
-        Function that creates a 3x3 rotation matrix from angle vectors of ℝ³ 
-        """
-        phi = angles[0]
-        theta = angles[1]
-        psi = angles[2]
-        r_matrix = torch.zeros(3, 3)
-        r_matrix[:, 0] = [cos(phi) * cos(theta), cos(theta) * sin(phi), -sin(theta)]
-        r_matrix[:, 1] = [
-            cos(phi) * sin(theta) * sin(psi) - cos(psi) * sin(phi),
-            cos(phi) * cos(psi) + sin(phi) * sin(theta) * sin(psi),
-            cos(theta) * sin(psi),
-        ]
-        r_matrix[:, 2] = [
-            sin(phi) * sin(psi) + cos(phi) * cos(psi) * sin(theta),
-            cos(psi) * sin(phi) * sin(theta) - cos(phi) * sin(psi),
-            cos(theta) * cos(psi),
-        ]
-        return r_matrix
-
-def main():
-    sim = SimpleQuadcopterSimulation()
-
-if __name__ == "__main__":
-    main()
+        torques = self._calculate_torques(propeller_speeds)
+        angular_acceleration = self.inertia_inv @ (
+            torques - np.cross(self.angular_velocity, self.inertia @ self.angular_velocity))
+        angular_velocity_matrix = self._angular_velocity_matrix()
+        angular_velocity_axis = angular_velocity_matrix @ self.angular_velocity
+        angular_velocity_axis += self.dt * angular_acceleration
+        self.angular_velocity = np.linalg.inv(angular_velocity_matrix) @ angular_velocity_axis
+        self.rotation += self.dt * self.angular_velocity
