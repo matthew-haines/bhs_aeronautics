@@ -94,7 +94,6 @@ function dataSender(client) {
         "throttle": determineCommand(keys[' '], keys['shift']) // spacebar and shift
     };
     client.send(JSON.stringify(message));
-    console.log("Sent");
 }
 
 function percentageUpdate(actualValues) {
@@ -105,14 +104,12 @@ function percentageUpdate(actualValues) {
 }
 
 function responseHandler(event) {
-    console.log("Recieved");
     var response = JSON.parse(event.data);
     motorSpeeds = new Array();
     response.motors.forEach(function (item, index) {
         motorSpeeds[index] = item;
     });
     percentageUpdate(motorSpeeds);
-    console.log(response.orientation);
     requestAnimationFrame(getFrame(response.orientation));
     if ('calibration' in response) {
         console.log(response.calibration);

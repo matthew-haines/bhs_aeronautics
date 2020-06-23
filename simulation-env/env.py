@@ -1,8 +1,9 @@
+import sys
 import numpy as np
 
 class Simulation:
 
-    def __init__(self):
+    def __init__(self, render=False):
         # All units in SI
         # Constants
         self.mass = 0.5
@@ -53,6 +54,20 @@ class Simulation:
             np.dot(np.array([1.0, -1.0, 1.0, -1.0]) *
                    propeller_speeds, propeller_speeds)
         return np.array([roll_torque, pitch_torque, yaw_torque])
+
+    def rotation_quaternion(self):
+        # q = [x, y, z, w]
+        s = np.sin
+        c = np.cos
+        r = self.rotation[0]
+        p = self.rotation[1]
+        y = self.rotation[2]
+        return np.array([
+            s(r)*c(p)*c(y)-c(r)*s(p)*s(y),
+            c(r)*s(p)*c(y)+s(r)*c(p)*s(y),
+            c(r)*c(p)*s(y)-s(r)*s(p)*c(y),
+            c(r)*c(p)*c(y)+s(r)*s(p)*s(y)
+        ])
 
     def step(self, propeller_speeds):
         rotational_matrix = self._rotational_matrix()
