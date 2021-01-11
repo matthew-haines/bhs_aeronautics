@@ -1,4 +1,4 @@
-# bhs_aeronautics
+# BHS Aeronautics
 Source code for Bell High School Aeronautics projects
 
 Developer: Matthew Haines
@@ -11,15 +11,14 @@ Developer: Matthew Haines
   - Wireless Network allowing for communication between laptop client and RPi server.
   - WebSocket Server for low-latency Server-Client Communication.
   - Autonomous and Manual Control Software.
-#### Control Software
+### Control Software
 - Abstraction of low level motor control and sensor input.
 - PID Controller for heading, allowing for stable flight.
-- I learned about Euler Angles and Rotation matrices to switch between reference frames for acceleration vectors.
+- I learned about Euler Angles and Rotation matrices to switch between reference frames.
 ### Simulation Software
-- Working on a full physics simulation environment of quadcopter dynamics for OpenAI Gym. Physics based on http://andrew.gibiansky.com/downloads/pdf/Quadcopter%20Dynamics,%20Simulation,%20and%20Control.pdf.
-- Allow for preliminary training and comparison of control model performance.
-- Control Theory (yay)
-### Clientside (WIP)
+- Made a quadcopter dynamics simulation environment for OpenAI Gym. Physics courtesy of [Andrew Gibianksy's Blog](http://andrew.gibiansky.com/downloads/pdf/Quadcopter%20Dynamics,%20Simulation,%20and%20Control.pdf).
+- Allows for preliminary training and comparison of control model performance and experimentation in Control Theory.
+### Clientside
 - App based on Electron Framework.
 - Simple control interface.
 - Fast communication with WebSocket Server on Raspberry Pi.
@@ -28,7 +27,7 @@ Developer: Matthew Haines
 ## Future Plans
 - Figure out how to calculate velocity and position somewhat accurately.
 - Add a camera
-  - Could possibly help with auto-hover because integrating acceleration twice gives **a lot** of error..
+  - Could possibly help with auto-hover because integrating acceleration twice gives **a lot** of error.
   - With a compute stick I could make an implementation of YOLO algorithm for object recognition.
 - Add a GPS
   - More intelligent path planning.

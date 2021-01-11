@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import torch
 from math import cos, sin, pi
 
