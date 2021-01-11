@@ -2,6 +2,21 @@ import asyncio
 import json
 import time
 import websockets
+import numpy as np
+
+def rotation_quaternion(euler):
+    # q = [x, y, z, w]
+    s = np.sin 
+    c = np.cos
+    r = euler[0]
+    p = euler[1]
+    y = euler[2]
+    return [
+        s(r)*c(p)*c(y)-c(r)*s(p)*s(y),
+        c(r)*s(p)*c(y)+s(r)*c(p)*s(y),
+        c(r)*c(p)*s(y)-s(r)*s(p)*c(y),
+        c(r)*c(p)*c(y)+s(r)*s(p)*s(y)
+    ]
 
 async def handler(websocket: websockets.server.WebSocketServer, path: str) -> None:
     motors = [0] * 4
@@ -20,11 +35,7 @@ async def handler(websocket: websockets.server.WebSocketServer, path: str) -> No
         
         await websocket.send(json.dumps({
             "time": int(round(time.time() * 1000)),
-            "orientation": {
-                "roll": j/300,
-                "pitch": j/150, 
-                "yaw": j/200
-            },
+            "orientation": rotation_quaternion([j/300, j/150, j/200]),
             "motors": motors
         }))
         j += 1
