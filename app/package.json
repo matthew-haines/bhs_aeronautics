@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "three": "^0.113.2",
-    "ws": "^7.0.0"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "electron": "^5.0.4"
